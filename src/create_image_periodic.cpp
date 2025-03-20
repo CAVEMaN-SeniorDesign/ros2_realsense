@@ -18,15 +18,17 @@
 using namespace std::chrono_literals;
 
 
-class RealSensePicture: public rclcpp::Node
+class RealSensePicture_Periodic: public rclcpp::Node
 {
     public:
-        RealSensePicture()
-        : Node("minimal_publisher"), count_(0)
+        RealSensePicture_Periodic()
+        : Node("image_publisher_periodic"), count_(0)
         {
-        publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
-        timer_ = this->create_wall_timer(
-        500ms, std::bind(&RealSensePicture::timer_callback, this));
+            this->declare_parameter<int>("period_ms" , 500);
+            std::chrono::milliseconds time_ms{this->get_parameter("period_ms").as_int()};
+            publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
+            timer_ = this->create_wall_timer(
+                time_ms, std::bind(&RealSensePicture_Periodic::timer_callback, this));
         }
 
     private:
@@ -64,7 +66,7 @@ class RealSensePicture: public rclcpp::Node
             pipe.start();
 
             // Capture 30 frames to give autoexposure, etc. a chance to settle
-            for (auto i = 0; i < 30; ++i) pipe.wait_for_frames();
+            //for (auto i = 0; i < 30; ++i) pipe.wait_for_frames();
 
             // Wait for the next set of frames from the camera. Now that autoexposure, etc.
             // has settled, we will write these to disk
@@ -73,7 +75,7 @@ class RealSensePicture: public rclcpp::Node
                 // We can only save video frames as pngs, so we skip the rest
                 if (auto vf = frame.as<rs2::video_frame>())
                 {
-                    auto stream = frame.get_profile().stream_type();
+                    //auto stream = frame.get_profile().stream_type();
                     // Use the colorizer to get an rgb image for the depth stream
                     if (vf.is<rs2::depth_frame>()) vf = color_map.process(frame);
 
@@ -109,13 +111,15 @@ class RealSensePicture: public rclcpp::Node
         rclcpp::TimerBase::SharedPtr timer_;
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
         size_t count_;
+        //std::string period_;
+        int period_int;
 };
 // This sample captures 30 frames and writes the last frame to disk.
 // It can be useful for debugging an embedded system with no display.
 int main(int argc, char * argv[]) try
 {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<RealSensePicture>());
+    rclcpp::spin(std::make_shared<RealSensePicture_Periodic>());
     rclcpp::shutdown();
     return 0;
 }

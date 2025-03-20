@@ -14,13 +14,19 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 
-add_executable(create_image src/create_image.cpp)
-target_link_libraries(create_image realsense2)
+add_executable(create_image_periodic src/create_image_periodic.cpp)
+target_link_libraries(create_image_periodic realsense2)
+ament_target_dependencies(create_image_periodic rclcpp std_msgs)
+
+add_executable(create_image_command src/create_image_command.cpp)
+target_link_libraries(create_image_command realsense2)
+ament_target_dependencies(create_image_command rclcpp std_msgs)
+
 include_directories(./common ./third-party)
-ament_target_dependencies(create_image rclcpp std_msgs)
 
 install(TARGETS
-  create_image
+  create_image_periodic
+  create_image_command
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
