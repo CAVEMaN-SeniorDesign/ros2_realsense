@@ -12,6 +12,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
 add_executable(create_image_periodic src/create_image_periodic.cpp)
@@ -22,11 +23,16 @@ add_executable(create_image_command src/create_image_command.cpp)
 target_link_libraries(create_image_command realsense2)
 ament_target_dependencies(create_image_command rclcpp std_msgs)
 
+add_executable(create_image_control_cmd src/create_image_control_cmd.cpp)
+target_link_libraries(create_image_control_cmd realsense2)
+ament_target_dependencies(create_image_control_cmd rclcpp sensor_msgs)
+
 include_directories(./common ./third-party)
 
 install(TARGETS
   create_image_periodic
   create_image_command
+  create_image_control_cmd
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

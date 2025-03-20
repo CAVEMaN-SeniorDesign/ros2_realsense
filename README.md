@@ -28,9 +28,17 @@
 
     `colcon build --packages-select ros2_realsense`
 
+2. Set the new source:
+
+    `source ~/ros2_ws/install/setup.bash`
+
 ## Note on the two scripts
 
-    There are two scripts: one that will take a picture periodically (every x millisenconds), and one that will take a picture every time it recieves a "1" from a selected input topic.
+    There are three scripts: 
+    1. One that will take a picture periodically (every x millisenconds), 
+    2. One that will take a picture every time it recieves a 1 from a selected input topic.
+    3. One that will take a picture every time it recieved a press from the x button on the xbox controller.
+
 
 ## Run the periodic node
 
@@ -55,3 +63,15 @@
     `ros2 run ros2_realsense create_image_command --ros-args -p topic:=<input-topic>`
     
     Example: `ros2 run ros2_realsense create_image_command --ros-args -p topic:=take_picture`
+
+## Run the controller-based node
+
+1. Create directories to store the images:
+
+    `mkdir images_Color && mkdir images_Depth`
+
+2. Run the node:
+
+    `ros2 run ros2_realsense create_image_contol_cmd --ros-args -p topic:=<input-topic>`
+    
+    Example: `ros2 run ros2_realsense create_image_control_cmd --ros-args -p topic:=/joy`
