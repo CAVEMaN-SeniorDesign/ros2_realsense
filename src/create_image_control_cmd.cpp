@@ -7,6 +7,11 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <bits/stdc++.h>
+#include <iostream>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <chrono>
 
 // 3rd party header for writing png files
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -25,6 +30,26 @@ public:
   : Node("image_publisher_command"), count_(0)
   {
     this->declare_parameter<std::string>("topic" , "/joy");
+
+    std::string color_dir = "/root/images_Color";
+    std::string depth_dir = "/root/images_Depth";
+
+    // Creating the images directories
+    mkdir(color_dir.c_str(), 0777);
+    mkdir(depth_dir.c_str(), 0777);
+
+    // Get time
+    const auto p1 = std::chrono::system_clock::now();
+
+    std::string timeStart = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(p1.time_since_epoch()).count());
+
+    color_time_dir = color_dir + "/" + timeStart;
+    depth_time_dir = depth_dir + "/" + timeStart;
+    
+    // Create time directory
+    mkdir(color_time_dir.c_str(), 0777);
+    mkdir(depth_time_dir.c_str(), 0777);
+
     subscription_ = this->create_subscription<sensor_msgs::msg::Joy>(
       this->get_parameter("topic").as_string(), 10, std::bind(&RealSensePicture_Command::topic_callback, this, _1));
   }
@@ -85,14 +110,14 @@ private:
               // Write images to disk
               if (vf.get_profile().stream_name() == "Color"){
                   std::stringstream png_file;
-                  png_file << "images_Color/rs-save-to-disk-output-" << vf.get_profile().stream_name() << count_ << ".png";
+                  png_file << color_time_dir << "/rs-save-to-disk-output-" << vf.get_profile().stream_name() << count_ << ".png";
                   stbi_write_png(png_file.str().c_str(), vf.get_width(), vf.get_height(),
                               vf.get_bytes_per_pixel(), vf.get_data(), vf.get_stride_in_bytes());
                   std::cout << "Saved " << png_file.str() << std::endl;
               }
               else{
                   std::stringstream png_file;
-                  png_file << "images_Depth/rs-save-to-disk-output-" << vf.get_profile().stream_name() << count_ << ".png";
+                  png_file << depth_time_dir << "/rs-save-to-disk-output-" << vf.get_profile().stream_name() << count_ << ".png";
                   stbi_write_png(png_file.str().c_str(), vf.get_width(), vf.get_height(),
                               vf.get_bytes_per_pixel(), vf.get_data(), vf.get_stride_in_bytes());
                   std::cout << "Saved " << png_file.str() << std::endl;
@@ -111,6 +136,8 @@ private:
   }
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr subscription_;
   size_t count_;
+  std::string color_time_dir;
+  std::string depth_time_dir;
 };
 
 int main(int argc, char * argv[])
