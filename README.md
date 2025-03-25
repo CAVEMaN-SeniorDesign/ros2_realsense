@@ -43,7 +43,7 @@ There are three scripts:
 
     `ros2 run ros2_realsense create_image_periodic --ros-args -p period_ms:=<period-in-milliseconds>`
     
-    Example: `ros2 run ros2_realsense create_image_periodic --ros-args -p period_ms:=500`
+    Example: `ros2 run ros2_realsense create_image_periodic --ros-args -p period_ms:=500 -p exposure_time:=15`
 
 ## Run the command-based node
 
@@ -51,7 +51,7 @@ There are three scripts:
 
     `ros2 run ros2_realsense create_image_command --ros-args -p topic:=<input-topic>`
     
-    Example: `ros2 run ros2_realsense create_image_command --ros-args -p topic:=take_picture`
+    Example: `ros2 run ros2_realsense create_image_command --ros-args -p topic:=take_picture -p exposure_time:=15`
 
 ## Run the controller-based node
 
@@ -59,4 +59,8 @@ There are three scripts:
 
     `ros2 run ros2_realsense create_image_contol_cmd --ros-args -p topic:=<input-topic>`
     
-    Example: `ros2 run ros2_realsense create_image_control_cmd --ros-args -p topic:=/joy`
+    Example: `ros2 run ros2_realsense create_image_control_cmd --ros-args -p topic:=/joy -p exposure_time:=15`
+
+## A note on the `exposure_time` argument
+
+The `exposure_time` argument controls the number of photos that will be taken for autoexposure before the actaul photo is taken. These initial photos allow the camera to adjust to the lighting in the environment. Higher exposure allows for better color quality, but it takes longer time to take a photo. A recommended `exposure_time` to start with is 15.

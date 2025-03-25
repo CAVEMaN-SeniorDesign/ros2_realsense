@@ -30,7 +30,10 @@ class RealSensePicture_Periodic: public rclcpp::Node
         : Node("image_publisher_periodic"), count_(0)
         {
             this->declare_parameter<int>("period_ms" , 500);
+            this->declare_parameter<int>("exposure_time" , 15);
+
             std::chrono::milliseconds time_ms{this->get_parameter("period_ms").as_int()};
+            exposure_time_ = this->get_parameter("exposure_time").as_int();
 
             std::string color_dir = "/root/images_Color";
             std::string depth_dir = "/root/images_Depth";
@@ -90,8 +93,8 @@ class RealSensePicture_Periodic: public rclcpp::Node
             // Start streaming with default recommended configuration
             pipe.start();
 
-            // Capture 30 frames to give autoexposure, etc. a chance to settle
-            //for (auto i = 0; i < 30; ++i) pipe.wait_for_frames();
+            // Capture a couple frames to give autoexposure, etc. a chance to settle
+            for (auto i = 0; i < exposure_time_; ++i) pipe.wait_for_frames();
 
             // Wait for the next set of frames from the camera. Now that autoexposure, etc.
             // has settled, we will write these to disk
@@ -107,14 +110,14 @@ class RealSensePicture_Periodic: public rclcpp::Node
                     // Write images to disk
                     if (vf.get_profile().stream_name() == "Color"){
                         std::stringstream png_file;
-                        png_file << color_time_dir << "/rs-save-to-disk-output-" << vf.get_profile().stream_name() << count_ << ".png";
+                        png_file << color_time_dir << "/image_exposure" << exposure_time_ << "-" << vf.get_profile().stream_name() << count_ << ".png";
                         stbi_write_png(png_file.str().c_str(), vf.get_width(), vf.get_height(),
                                     vf.get_bytes_per_pixel(), vf.get_data(), vf.get_stride_in_bytes());
                         std::cout << "Saved " << png_file.str() << std::endl;
                     }
                     else{
                         std::stringstream png_file;
-                        png_file << depth_time_dir << "/rs-save-to-disk-output-" << vf.get_profile().stream_name() << count_ << ".png";
+                        png_file << depth_time_dir << "/image_exposure" << exposure_time_ << "-" << vf.get_profile().stream_name() << count_ << ".png";
                         stbi_write_png(png_file.str().c_str(), vf.get_width(), vf.get_height(),
                                     vf.get_bytes_per_pixel(), vf.get_data(), vf.get_stride_in_bytes());
                         std::cout << "Saved " << png_file.str() << std::endl;
@@ -140,6 +143,7 @@ class RealSensePicture_Periodic: public rclcpp::Node
         int period_int;
         std::string color_time_dir;
         std::string depth_time_dir;
+        int exposure_time_;
 };
 // This sample captures 30 frames and writes the last frame to disk.
 // It can be useful for debugging an embedded system with no display.
