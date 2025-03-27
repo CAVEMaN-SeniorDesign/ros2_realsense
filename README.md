@@ -28,12 +28,17 @@
 
     `colcon build --packages-select ros2_realsense`
 
+3. Source the new build.
+
+    `source ~/ros2_ws/install/setup.sh`
+
 ## Note on the two scripts
 
-There are three scripts: 
+There are four scripts: 
 1. One that will take a picture periodically (every x millisenconds), 
 2. One that will take a picture every time it recieves a 1 from a selected input topic.
 3. One that will take a picture every time it recieved a press from the x button on the xbox controller.
+4. One that will take a stream of raw images and convert them to PNGs.
     
     All images should be published to `~/images_Color` and `~/images_Depth`.
 
@@ -61,6 +66,33 @@ There are three scripts:
     
     Example: `ros2 run ros2_realsense create_image_control_cmd --ros-args -p topic:=/joy -p exposure_time:=15`
 
+## Run the raw image converter
+
+1. The raw images are produced through the realsense ros2 wrapper. So, that wrapper must be obtained.
+
+    `cd ~/ros2_ws/src`
+
+    `git clone https://github.com/IntelRealSense/realsense-ros.git`
+
+2. Build the realsense ros2 wrapper.
+    
+    `cd ~/ros2_ws`
+    
+    `colcon build --packages-select realsense-ros`
+
+3. Source the new build.
+
+    `source ~/ros2_ws/install/setup.sh`
+
+4. Run the realsenes wrapper.
+
+    `ros2 launch realsense2_camera rs_launch.py`
+
+5. Run the image converter. Make sure you make the input topic the raw images. You can check the exact name by entering the command `ros2 topic list`. Usually, though, the topic name is `/camera/camera/color/image_raw`. 
+
+    `ros2 run ros2_realsense convert_image_raw --ros-ags -p topic:=/camera/camera/color/image_raw`
+
 ## A note on the `exposure_time` argument
+
 
 The `exposure_time` argument controls the number of photos that will be taken for autoexposure before the actaul photo is taken. These initial photos allow the camera to adjust to the lighting in the environment. Higher exposure allows for better color quality, but it takes longer time to take a photo. A recommended `exposure_time` to start with is 15.
