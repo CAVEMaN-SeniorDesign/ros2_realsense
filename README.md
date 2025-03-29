@@ -86,11 +86,23 @@ There are four scripts:
 
 4. Run the realsenes wrapper.
 
-    `ros2 launch realsense2_camera rs_launch.py`
+    To get 720p color images (recommended):
 
-5. Run the image converter. Make sure you make the input topic the raw images. You can check the exact name by entering the command `ros2 topic list`. Usually, though, the topic name is `/camera/camera/color/image_raw`. 
+    `ros2 launch realsense2_camera rs_launch.py rgb_camera.color_profile:=1280x720x30`
 
-    `ros2 run ros2_realsense convert_image_raw --ros-ags -p topic:=/camera/camera/color/image_raw`
+    To get 720p color and depth images (will decrease fps for both color and depth images):
+
+    `ros2 launch realsense2_camera rs_launch.py rgb_camera.color_profile:=1280x720x30 depth_module.depth_profile:=640x480x30`
+
+5. Run the image converter. Make sure you make the input topic the raw images. You can check the exact name by entering the command `ros2 topic list`. 
+
+    `ros2 run ros2_realsense convert_image_raw --ros-ags -p topic_color:=/camera/camera/color/image_raw -p topic_depth:=/camera/camera/depth/image_rect_raw -p topic_joy:=/joy`
+
+    `topic_color` Should be the topic of the raw images. Default: `/camera/camera/color/image_raw`
+
+    `topic_depth` Should be the topic of the depth images. Default: `/camera/camera/depth/image_rect_raw`
+
+    `topic_joy` Should be the topic of the controller. Default: `/joy`
 
 ## A note on the `exposure_time` argument
 

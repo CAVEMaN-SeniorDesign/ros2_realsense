@@ -34,6 +34,9 @@ add_executable(convert_image_raw src/convert_image_raw.cpp)
 #target_link_libraries(create_image_control_cmd realsense2)
 ament_target_dependencies(convert_image_raw sensor_msgs cv_bridge rclcpp std_msgs image_transport)
 
+#add_executable(rosbag_control src/rosbag_control.cpp)
+#ament_target_dependencies(rosbag_control rclcpp sensor_msgs)
+
 include_directories(./common ./third-party)
 
 install(TARGETS
@@ -41,6 +44,7 @@ install(TARGETS
   create_image_command
   create_image_control_cmd
   convert_image_raw
+  #rosbag_control
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
