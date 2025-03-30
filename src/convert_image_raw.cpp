@@ -30,6 +30,19 @@ class ConvertImageRaw: public rclcpp::Node
                 mode_ = false;
             }
             else{
+
+                // Get time
+                const auto p1 = std::chrono::system_clock::now();
+
+                std::string timeStart = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(p1.time_since_epoch()).count());
+
+                color_time_dir = color_dir + "/" + timeStart;
+                depth_time_dir = depth_dir + "/" + timeStart;
+
+                // Create time directory
+                mkdir(color_time_dir.c_str(), 0777);
+                mkdir(depth_time_dir.c_str(), 0777);
+                
                 mode_ = true;
             }
             
