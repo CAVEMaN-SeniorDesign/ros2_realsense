@@ -26,6 +26,14 @@ class ConvertImageRaw: public rclcpp::Node
             this->declare_parameter<std::string>("topic_joy" , "/joy");
             this->declare_parameter<bool>("use_controller", false);
 
+            
+            color_dir = "/root/images_Color";
+            depth_dir = "/root/images_Depth";
+
+            // Creating the images directories
+            mkdir(color_dir.c_str(), 0777);
+            mkdir(depth_dir.c_str(), 0777);
+
             if (this->get_parameter("use_controller").as_bool() == true){
                 mode_ = false;
             }
@@ -45,13 +53,6 @@ class ConvertImageRaw: public rclcpp::Node
                 
                 mode_ = true;
             }
-            
-            color_dir = "/root/images_Color";
-            depth_dir = "/root/images_Depth";
-
-            // Creating the images directories
-            mkdir(color_dir.c_str(), 0777);
-            mkdir(depth_dir.c_str(), 0777);
 
             // Get compression parameters
             compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
