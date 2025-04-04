@@ -27,25 +27,29 @@ class ConvertImageRaw: public rclcpp::Node
             this->declare_parameter<bool>("use_controller", false);
 
             
-            color_dir = "/root/images_Color";
-            depth_dir = "/root/images_Depth";
+            dir = "/root/images";
 
             // Creating the images directories
-            mkdir(color_dir.c_str(), 0777);
-            mkdir(depth_dir.c_str(), 0777);
+            mkdir(dir.c_str(), 0777);
+            //mkdir(depth_dir.c_str(), 0777);
 
             if (this->get_parameter("use_controller").as_bool() == true){
                 mode_ = false;
             }
             else{
+                
 
                 // Get time
                 const auto p1 = std::chrono::system_clock::now();
 
                 std::string timeStart = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(p1.time_since_epoch()).count());
 
-                color_time_dir = color_dir + "/" + timeStart;
-                depth_time_dir = depth_dir + "/" + timeStart;
+                time_dir = dir + "/" + timeStart;
+
+                mkdir(time_dir.c_str(), 0777);
+
+                color_time_dir = time_dir + "/color";
+                depth_time_dir = time_dir + "/depth";
 
                 // Create time directory
                 mkdir(color_time_dir.c_str(), 0777);
@@ -68,6 +72,23 @@ class ConvertImageRaw: public rclcpp::Node
                 this->get_parameter("topic_color").as_string(), 10, std::bind(&ConvertImageRaw::publish_color, this, _1));
         }
 
+        ~ConvertImageRaw(){
+
+            // Zip color directory
+            std::string command = "zip -r " + time_dir + ".zip " + time_dir;
+            system(command.c_str());
+            command = "rm -rf " + time_dir;
+            system(command.c_str());
+
+            // Zip depth directory
+            /*
+            command = "zip -r " + depth_time_dir + ".zip " + depth_time_dir;
+            system(command.c_str());
+            command = "rm -rf " + depth_time_dir;
+            system(command.c_str());
+            */
+        }
+
     private:
         
         void get_joy(const sensor_msgs::msg::Joy::SharedPtr msg)
@@ -81,8 +102,12 @@ class ConvertImageRaw: public rclcpp::Node
 
                     std::string timeStart = std::to_string(std::chrono::duration_cast<std::chrono::seconds>(p1.time_since_epoch()).count());
 
-                    color_time_dir = color_dir + "/" + timeStart;
-                    depth_time_dir = depth_dir + "/" + timeStart;
+                    time_dir = dir + "/" + timeStart;
+
+                    mkdir(time_dir.c_str(), 0777);
+
+                    color_time_dir = time_dir + "/color";
+                    depth_time_dir = time_dir + "/depth";
 
                     // Create time directory
                     mkdir(color_time_dir.c_str(), 0777);
@@ -93,6 +118,14 @@ class ConvertImageRaw: public rclcpp::Node
                 }
                 else{
                     mode_ = false;
+
+                    // Zip up photos
+                    
+                    // Zip color directory
+                    std::string command = "zip -r " + time_dir + ".zip " + time_dir;
+                    system(command.c_str());
+                    command = "rm -rf " + time_dir;
+                    system(command.c_str());
                 }
             }
 
@@ -114,7 +147,7 @@ class ConvertImageRaw: public rclcpp::Node
                 }
 
                 bool success; 
-                std::string image_name = depth_time_dir + "/" + "depth_image" + std::to_string(count_depth_) + ".jpeg";
+                std::string image_name = depth_time_dir + "/depth_image" + std::to_string(count_depth_) + ".jpeg";
 
                 success = cv::imwrite(image_name.c_str(), cv_ptr->image, compression_params);
 
@@ -144,7 +177,7 @@ class ConvertImageRaw: public rclcpp::Node
                 }
 
                 bool success; 
-                std::string image_name = color_time_dir + "/" + "color_image" + std::to_string(count_color_) + ".jpeg";
+                std::string image_name = color_time_dir + "/color_image" + std::to_string(count_color_) + ".jpeg";
 
                 success = cv::imwrite(image_name.c_str(), cv_ptr->image, compression_params);
 
@@ -162,8 +195,8 @@ class ConvertImageRaw: public rclcpp::Node
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_color_;
         rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_depth_;
         rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr subscription_joy_;
-        std::string color_dir;
-        std::string depth_dir;
+        std::string dir;
+        std::string time_dir;
         std::string color_time_dir;
         std::string depth_time_dir;
         int count_color_, count_depth_, previous_joy_;
@@ -173,8 +206,10 @@ class ConvertImageRaw: public rclcpp::Node
 
 };
 
+
 int main(int argc, char * argv[])
 {
+    //std::signal(SIGINT, signalHandler);
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<ConvertImageRaw>());
     rclcpp::shutdown();

@@ -40,7 +40,7 @@ There are four scripts:
 3. One that will take a picture every time it recieved a press from the x button on the xbox controller.
 4. One that will take a stream of raw images and convert them to PNGs.
     
-    All images should be published to `~/images_Color` and `~/images_Depth`.
+    All images should be published to `~/images`.
 
 ## Run the periodic node
 
@@ -92,17 +92,19 @@ There are four scripts:
 
     To get 720p color and depth images (will decrease fps for both color and depth images):
 
-    `ros2 launch realsense2_camera rs_launch.py rgb_camera.color_profile:=1280x720x30 depth_module.depth_profile:=640x480x30`
+    `ros2 launch realsense2_camera rs_launch.py rgb_camera.color_profile:=1280x720x30 depth_module.depth_profile:=1280x720x30`
 
 5. Run the image converter. Make sure you make the input topic the raw images. You can check the exact name by entering the command `ros2 topic list`. 
 
-    `ros2 run ros2_realsense convert_image_raw --ros-ags -p topic_color:=/camera/camera/color/image_raw -p topic_depth:=/camera/camera/depth/image_rect_raw -p topic_joy:=/joy`
+    `ros2 run ros2_realsense convert_image_raw --ros-ags --remap topic_color:=/camera/camera/color/image_raw --remap topic_depth:=/camera/camera/depth/image_rect_raw --remap topic_joy:=/joy --remap use_controller:=false`
 
     `topic_color` Should be the topic of the raw images. Default: `/camera/camera/color/image_raw`
 
     `topic_depth` Should be the topic of the depth images. Default: `/camera/camera/depth/image_rect_raw`
 
     `topic_joy` Should be the topic of the controller. Default: `/joy`
+
+    `use_controller` Should be wether or not you want to use the controller (`x` button) to controll inputs. Default: `false`
 
 ## A note on the `exposure_time` argument
 
