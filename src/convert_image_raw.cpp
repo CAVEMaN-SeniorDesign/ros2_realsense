@@ -68,6 +68,21 @@ class ConvertImageRaw: public rclcpp::Node
                 this->get_parameter("topic_color").as_string(), 10, std::bind(&ConvertImageRaw::publish_color, this, _1));
         }
 
+        ~ConvertImageRaw(){
+
+            // Zip color directory
+            std::string command = "zip -r " + color_time_dir + ".zip " + color_time_dir;
+            system(command.c_str());
+            command = "rm -rf " + color_time_dir;
+            system(command.c_str());
+
+            // Zip depth directory
+            command = "zip -r " + depth_time_dir + ".zip " + depth_time_dir;
+            system(command.c_str());
+            command = "rm -rf " + depth_time_dir;
+            system(command.c_str());
+        }
+
     private:
         
         void get_joy(const sensor_msgs::msg::Joy::SharedPtr msg)
@@ -93,6 +108,20 @@ class ConvertImageRaw: public rclcpp::Node
                 }
                 else{
                     mode_ = false;
+
+                    // Zip up photos
+                    
+                    // Zip color directory
+                    std::string command = "zip -r " + color_time_dir + ".zip " + color_time_dir;
+                    system(command.c_str());
+                    command = "rm -rf " + color_time_dir;
+                    system(command.c_str());
+
+                    // Zip depth directory
+                    command = "zip -r " + depth_time_dir + ".zip " + depth_time_dir;
+                    system(command.c_str());
+                    command = "rm -rf " + depth_time_dir;
+                    system(command.c_str());
                 }
             }
 
@@ -173,8 +202,10 @@ class ConvertImageRaw: public rclcpp::Node
 
 };
 
+
 int main(int argc, char * argv[])
 {
+    //std::signal(SIGINT, signalHandler);
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<ConvertImageRaw>());
     rclcpp::shutdown();
