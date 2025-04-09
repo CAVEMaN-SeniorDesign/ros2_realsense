@@ -96,7 +96,7 @@ There are four scripts:
 
 5. Run the image converter. Make sure you make the input topic the raw images. You can check the exact name by entering the command `ros2 topic list`. 
 
-    `ros2 run ros2_realsense convert_image_raw --ros-ags --remap topic_color:=/camera/camera/color/image_raw --remap topic_depth:=/camera/camera/depth/image_rect_raw --remap topic_joy:=/joy --remap use_controller:=false`
+    `ros2 run ros2_realsense convert_image_raw --ros-args -p topic_color:=/camera/camera/color/image_raw -p topic_depth:=/camera/camera/depth/image_rect_raw -p topic_joy:=/joy -p use_controller:=false`
 
     `topic_color` Should be the topic of the raw images. Default: `/camera/camera/color/image_raw`
 
